@@ -22,8 +22,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Build the markdown string (using real newlines)
-          MD_TEXT="### 🚀 Ready to view!"
+          # Construct a Markdown document and publish it to GitHub Checks
+          MD_TEXT="### MuJoCo Live Previews"
           MD_TEXT="$MD_TEXT"$'\n\n'
           
           for file in ${{ steps.changed-xml-files.outputs.all_changed_files }}; do
@@ -36,13 +36,13 @@ jobs:
             --arg head_sha "${{ github.event.pull_request.head.sha }}" \
             --arg text "$MD_TEXT" \
             '{
-              name: "Live Previews",
+              name: "MuJoCo Live Previews",
               head_sha: $head_sha,
               status: "completed",
               conclusion: "success",
               output: {
-                title: "MuJoCo Live Previews",
-                summary: "Preview links for modified XML files",
+                title: "🚀 Preview Links",
+                summary: "MuJoCo Live preview links for modified XML files",
                 text: $text
               }
             }' > payload.json
