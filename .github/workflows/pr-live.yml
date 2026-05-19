@@ -23,8 +23,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Construct a Markdown document and publish it to GitHub Checks
-          MD_TEXT="### MuJoCo Live Previews"
-          MD_TEXT="$MD_TEXT"$'\n\n'
+          MD_TEXT=""
           
           for file in ${{ steps.changed-xml-files.outputs.all_changed_files }}; do
             URL="https://live.mujoco.org/?model=github:${{ github.repository }}/pull/${{ github.event.pull_request.number }}/head/$file"
@@ -36,13 +35,13 @@ jobs:
             --arg head_sha "${{ github.event.pull_request.head.sha }}" \
             --arg text "$MD_TEXT" \
             '{
-              name: "MuJoCo Live Previews",
+              name: "🚀 Preview Links",
               head_sha: $head_sha,
               status: "completed",
               conclusion: "success",
               output: {
-                title: "🚀 Preview Links",
-                summary: "MuJoCo Live preview links for modified XML files",
+                title: "MuJoCo Live",
+                summary: "MuJoCo Live preview links for modified XML files in this Pull Request.",
                 text: $text
               }
             }' > payload.json
