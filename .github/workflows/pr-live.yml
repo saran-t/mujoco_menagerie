@@ -1,0 +1,25 @@
+name: MuJoCo Live
+
+on:
+  pull_request_target:
+    paths:
+      - '**/*.xml'
+
+jobs:
+  generate-live-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Collect list of XML files
+        id: changed-xml-files
+        uses: step-security/changed-files@v47
+        with:
+          files: '**/*.xml'
+
+      - name: Publish MuJoCo Live links
+        if: steps.changed-xml-files.outputs.any_changed == 'true'
+        run: |
+          echo "## MuJoCo Live" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          for file in ${{ steps.changed-xml-files.outputs.all_changed_files }}; do
+            echo "- [\`$file\`](https://live.mujoco.org/?model=github:${{ github.repository }}/pull/${{ github.event.pull_request.number }}/$file)" >> $GITHUB_STEP_SUMMARY
+          done
