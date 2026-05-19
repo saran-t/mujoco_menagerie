@@ -17,9 +17,38 @@ jobs:
 
       - name: Publish MuJoCo Live links
         if: steps.changed-xml-files.outputs.any_changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "## MuJoCo Live" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          # 1. Build the markdown string (using real newlines)
+          MD_TEXT="### 🚀 Ready to view!"
+          MD_TEXT="$MD_TEXT"$'\n\n'
+          
           for file in ${{ steps.changed-xml-files.outputs.all_changed_files }}; do
-            echo "- [\`$file\`](https://live.mujoco.org/?model=github:${{ github.repository }}/pull/${{ github.event.pull_request.number }}/$file)" >> $GITHUB_STEP_SUMMARY
+            URL="https://live.mujoco.org/?model=github:${{ github.repository }}/pull/${{ github.event.pull_request.number }}/head/$file"
+            MD_TEXT="$MD_TEXT- [\`$file\`]($URL)"$'\n'
           done
+
+          # 2. Safely construct the JSON payload using jq to prevent escaping issues
+          jq -n \
+            --arg head_sha "${{ github.event.pull_request.head.sha }}" \
+            --arg text "$MD_TEXT" \
+            '{
+              name: "Live Previews",
+              head_sha: $head_sha,
+              status: "completed",
+              conclusion: "success",
+              output: {
+                title: "MuJoCo Live Previews",
+                summary: "Preview links for modified XML files",
+                text: $text
+              }
+            }' > payload.json
+
+          # 3. Send to GitHub Checks API
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/check-runs \
+            --input payload.json
