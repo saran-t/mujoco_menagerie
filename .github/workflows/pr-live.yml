@@ -6,7 +6,7 @@ on:
       - '**/*.xml'
 
 jobs:
-  generate-live-links:
+  generate-previews:
     runs-on: ubuntu-latest
     permissions:
       checks: write
@@ -35,13 +35,13 @@ jobs:
             --arg head_sha "${{ github.event.pull_request.head.sha }}" \
             --arg text "$MD_TEXT" \
             '{
-              name: "🚀 Preview Links",
+              name: "🚀 Live Previews",
               head_sha: $head_sha,
               status: "completed",
               conclusion: "success",
               output: {
                 title: "MuJoCo Live",
-                summary: "MuJoCo Live preview links for modified XML files in this Pull Request.",
+                summary: "Preview links for modified XML files in this Pull Request.",
                 text: $text
               }
             }' > payload.json
