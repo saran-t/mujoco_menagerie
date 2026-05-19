@@ -8,6 +8,8 @@ on:
 jobs:
   generate-live-links:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
       - name: Collect list of XML files
         id: changed-xml-files
